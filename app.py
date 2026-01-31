@@ -4,49 +4,124 @@ from datetime import datetime
 
 # Configuração da página
 st.set_page_config(
-    page_title="Monitor de Segurança de Barragens IA",
-    page_icon="🏗️",
+    page_title="CNN Brasil - Monitor de Barragens",
+    page_icon="🔴",
     layout="wide"
 )
 
-# CSS para estilização
+# CSS INSPIRADO NA CNN BRASIL
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap' );
-    * { font-family: 'Inter', sans-serif; }
-    .stApp { background-color: #f8fafc; }
-    .main-banner {
-        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-        padding: 2.5rem;
-        border-radius: 15px;
-        color: white;
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700;900&display=swap' );
+    
+    * { font-family: 'Roboto', sans-serif; }
+
+    /* Fundo do Portal */
+    .stApp {
+        background-color: #ffffff;
+        color: #222222;
+    }
+
+    /* Header Estilo CNN */
+    .cnn-header {
+        background-color: #cc0000; /* Vermelho CNN */
+        padding: 1.5rem;
         text-align: center;
+        color: white;
+        margin-bottom: 0;
+        border-bottom: 5px solid #990000;
+    }
+
+    .cnn-header h1 {
+        font-weight: 900;
+        font-size: 2.8rem;
+        letter-spacing: -1px;
+        margin: 0;
+        color: white !important;
+    }
+
+    .cnn-subheader {
+        background-color: #222222;
+        color: #ffffff;
+        padding: 0.5rem;
+        text-align: center;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-size: 0.9rem;
         margin-bottom: 2rem;
     }
+
+    /* Barra de Pesquisa Estilizada */
+    .stTextInput input {
+        border: 2px solid #eeeeee !important;
+        border-radius: 0px !important;
+        padding: 12px !important;
+        font-size: 1.1rem !important;
+        text-align: center !important;
+        color: #222222 !important;
+    }
+
+    /* Cards de Notícias Estilo Portal */
     .news-card {
-        background: white;
-        padding: 1.2rem;
-        border-radius: 10px;
-        border: 1px solid #e2e8f0;
-        height: 220px;
+        background: #ffffff;
+        border-bottom: 3px solid #cc0000;
+        padding: 2rem;
+        height: 300px;
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        transition: background 0.3s;
         margin-bottom: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
+
+    .news-card:hover {
+        background: #f9f9f9;
+    }
+
     .news-tag {
-        background: #dbeafe;
-        color: #1e40af;
-        font-size: 0.7rem;
-        font-weight: bold;
-        padding: 2px 8px;
-        border-radius: 10px;
+        color: #cc0000;
+        font-weight: 900;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+        display: block;
     }
+
     .news-title {
-        font-size: 1rem;
+        font-size: 1.4rem;
         font-weight: 700;
-        color: #1e293b;
-        margin-top: 10px;
+        color: #222222;
+        line-height: 1.2;
+        margin-bottom: 15px;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .news-source {
+        font-size: 0.85rem;
+        color: #666666;
+        font-weight: 400;
+    }
+
+    /* Botão de Ação */
+    .stButton>button {
+        border-radius: 0px !important;
+        background-color: #222222 !important;
+        color: white !important;
+        border: none !important;
+        font-weight: 700 !important;
+        text-transform: uppercase;
+        width: 100%;
+    }
+
+    .stButton>button:hover {
+        background-color: #cc0000 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -55,35 +130,40 @@ st.markdown("""
 @st.cache_data(ttl=3600)
 def coletar():
     noticias = []
-    for termo in ["Segurança de Barragens", "Barragens no Brasil"]:
+    termos = ["Segurança de Barragens", "Barragens no Brasil"]
+    for termo in termos:
         feed = feedparser.parse(f"https://news.google.com/rss/search?q={termo.replace(' ', '+' )}&hl=pt-BR&gl=BR&ceid=BR:pt-419")
-        for e in feed.entries[:9]:
+        for e in feed.entries[:12]:
             noticias.append({
                 'titulo': e.title,
                 'link': e.link,
-                'fonte': e.source.title if hasattr(e, 'source') else 'News',
-                'termo': termo
+                'fonte': e.source.title if hasattr(e, 'source') else 'CNN Brasil Feed',
+                'termo': "SEGURANÇA" if "Segurança" in termo else "BRASIL"
             })
     return noticias
 
-# Interface
-st.markdown('<div class="main-banner"><h1>🏗️ Monitor de Segurança de Barragens</h1><p>Agente de IA para Monitoramento Autônomo</p></div>', unsafe_allow_html=True)
+# --- INTERFACE ---
+
+st.markdown('<div class="cnn-header"><h1>CNN BRASIL</h1></div>', unsafe_allow_html=True)
+st.markdown('<div class="cnn-subheader">Monitor de Segurança de Barragens | Agente de IA</div>', unsafe_allow_html=True)
 
 noticias = coletar()
 
-# Busca e Filtro
-col1, col2 = st.columns([3, 1])
-with col1:
-    busca = st.text_input("🔍 Pesquisar notícias...", placeholder="Digite aqui...")
-with col2:
-    if st.button("🔄 Atualizar"):
+# Barra de Pesquisa
+col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
+with col_c2:
+    busca = st.text_input("", placeholder="🔍 PESQUISAR NO PORTAL...")
+    if st.button("ATUALIZAR NOTÍCIAS"):
         st.cache_data.clear()
         st.rerun()
+
+st.markdown("  
+", unsafe_allow_html=True)
 
 # Filtragem
 filtradas = [n for n in noticias if busca.lower() in n['titulo'].lower()]
 
-# Exibição em Grid
+# Grid de Notícias
 if filtradas:
     for i in range(0, len(filtradas), 3):
         cols = st.columns(3)
@@ -93,16 +173,16 @@ if filtradas:
                 with cols[j]:
                     st.markdown(f"""
                     <div class="news-card">
-                        <div>
-                            <span class="news-tag">{n['termo']}</span>
-                            <div class="news-title">{n['titulo'][:85]}...</div>
-                        </div>
-                        <div style="font-size: 0.8rem; color: #64748b;">🏢 {n['fonte']}</div>
+                        <span class="news-tag">{n['termo']}</span>
+                        <div class="news-title">{n['titulo']}</div>
+                        <div class="news-source">Fonte: {n['fonte']}</div>
                     </div>
                     """, unsafe_allow_html=True)
-                    st.link_button("Ler Notícia", n['link'], use_container_width=True)
+                    st.link_button("LEIA MAIS", n['link'], use_container_width=True)
 else:
-    st.info("Nenhuma notícia encontrada.")
+    st.markdown("<h3 style='text-align: center;'>Nenhuma notícia encontrada.</h3>", unsafe_allow_html=True)
 
-st.markdown("---")
-st.markdown("<div style='text-align: center; color: #94a3b8;'>Portal Gerado por Agente de IA • 2024</div>", unsafe_allow_html=True)
+st.markdown("  
+  
+<hr>", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; color: #666666; font-size: 0.8rem; padding-bottom: 50px;'>© 2024 CNN Brasil - Monitoramento Autônomo via Agente de IA</div>", unsafe_allow_html=True)
