@@ -1,234 +1,108 @@
 import streamlit as st
 import feedparser
 from datetime import datetime
-import time
 
 # Configuração da página
 st.set_page_config(
     page_title="Monitor de Segurança de Barragens IA",
     page_icon="🏗️",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="wide"
 )
 
-# CSS AVANÇADO PARA PERSONALIZAÇÃO TOTAL
+# CSS para estilização
 st.markdown("""
 <style>
-    /* Importando fonte moderna */
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap' );
-    
-    * {
-        font-family: 'Inter', sans-serif;
-    }
-
-    /* Fundo da página */
-    .stApp {
-        background-color: #f4f7f9;
-    }
-
-    /* Banner Principal */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap' );
+    * { font-family: 'Inter', sans-serif; }
+    .stApp { background-color: #f8fafc; }
     .main-banner {
         background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
-        padding: 3rem 2rem;
+        padding: 2.5rem;
         border-radius: 15px;
         color: white;
         text-align: center;
         margin-bottom: 2rem;
-        box-shadow: 0 10px 25px rgba(30, 58, 138, 0.2);
     }
-
-    .main-banner h1 {
-        font-weight: 800;
-        font-size: 2.5rem;
-        margin-bottom: 0.5rem;
-        color: white !important;
-    }
-
-    /* Cards de Notícias */
     .news-card {
         background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
+        padding: 1.2rem;
+        border-radius: 10px;
         border: 1px solid #e2e8f0;
-        margin-bottom: 1rem;
-        transition: all 0.3s ease;
+        height: 220px;
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        height: 250px;
+        margin-bottom: 10px;
     }
-
-    .news-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 20px rgba(0,0,0,0.08);
-        border-color: #3b82f6;
-    }
-
     .news-tag {
         background: #dbeafe;
         color: #1e40af;
         font-size: 0.7rem;
         font-weight: bold;
-        padding: 0.2rem 0.6rem;
-        border-radius: 20px;
-        text-transform: uppercase;
-        margin-bottom: 0.8rem;
-        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 10px;
     }
-
     .news-title {
-        font-size: 1.1rem;
+        font-size: 1rem;
         font-weight: 700;
         color: #1e293b;
-        line-height: 1.4;
-        margin-bottom: 1rem;
-    }
-
-    .news-footer {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        font-size: 0.8rem;
-        color: #64748b;
-        border-top: 1px solid #f1f5f9;
-        padding-top: 0.8rem;
-    }
-
-    /* Sidebar Estilizada */
-    [data-testid="stSidebar"] {
-        background-color: #ffffff;
-        border-right: 1px solid #e2e8f0;
-    }
-
-    .stat-card {
-        background: #f8fafc;
-        padding: 1rem;
-        border-radius: 10px;
-        border-left: 4px solid #3b82f6;
-        margin-bottom: 1rem;
-    }
-
-    /* Botões */
-    .stButton>button {
-        width: 100%;
-        border-radius: 8px;
-        font-weight: 600;
-        background-color: #3b82f6;
-        color: white;
-        border: none;
-        transition: all 0.2s;
-    }
-
-    .stButton>button:hover {
-        background-color: #1e40af;
-        color: white;
+        margin-top: 10px;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# Função do Agente de Coleta
+# Agente de Coleta
 @st.cache_data(ttl=3600)
-def coletar_noticias():
-    termos = ["Segurança de Barragens", "Barragens no Brasil"]
+def coletar():
     noticias = []
-    for termo in termos:
+    for termo in ["Segurança de Barragens", "Barragens no Brasil"]:
         feed = feedparser.parse(f"https://news.google.com/rss/search?q={termo.replace(' ', '+' )}&hl=pt-BR&gl=BR&ceid=BR:pt-419")
-        for entry in feed.entries[:12]: 
+        for e in feed.entries[:9]:
             noticias.append({
-                'titulo': entry.title,
-                'link': entry.link,
-                'data': entry.published if hasattr(entry, 'published') else 'Recente',
-                'fonte': entry.source.title if hasattr(entry, 'source') else 'Google News',
+                'titulo': e.title,
+                'link': e.link,
+                'fonte': e.source.title if hasattr(e, 'source') else 'News',
                 'termo': termo
             })
-    
-    vistos = set()
-    unicas = []
-    for n in noticias:
-        if n['titulo'] not in vistos:
-            unicas.append(n)
-            vistos.add(n['titulo'])
-    return unicas
+    return noticias
 
-# --- INTERFACE ---
+# Interface
+st.markdown('<div class="main-banner"><h1>🏗️ Monitor de Segurança de Barragens</h1><p>Agente de IA para Monitoramento Autônomo</p></div>', unsafe_allow_html=True)
 
-# Sidebar
-with st.sidebar:
-    st.image("https://cdn-icons-png.flaticon.com/512/2920/2920277.png", width=80 )
-    st.title("Painel de Controle")
-    
-    if st.button("🔄 Sincronizar Agente"):
+noticias = coletar()
+
+# Busca e Filtro
+col1, col2 = st.columns([3, 1])
+with col1:
+    busca = st.text_input("🔍 Pesquisar notícias...", placeholder="Digite aqui...")
+with col2:
+    if st.button("🔄 Atualizar"):
         st.cache_data.clear()
         st.rerun()
-    
-    st.markdown("---")
-    st.markdown("### 📊 Status do Agente")
-    noticias = coletar_noticias()
-    
-    st.markdown(f"""
-    <div class="stat-card">
-        <small>Notícias Coletadas</small>  
 
-        <strong>{len(noticias)} itens encontrados</strong>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("### 🛠️ Configurações")
-    st.info("O Agente de IA verifica novas fontes a cada 60 minutos automaticamente.")
+# Filtragem
+filtradas = [n for n in noticias if busca.lower() in n['titulo'].lower()]
 
-# Área Principal
-st.markdown("""
-<div class="main-banner">
-    <h1>🏗️ Monitor de Segurança de Barragens</h1>
-    <p>Agente de Inteligência Artificial para Monitoramento Autônomo de Notícias</p>
-</div>
-""", unsafe_allow_html=True)
-
-# Filtros em linha
-col_f1, col_f2 = st.columns([3, 1])
-with col_f1:
-    busca = st.text_input("🔍 Pesquisar no portal...", placeholder="Ex: Brumadinho, Fiscalização...")
-with col_f2:
-    filtro_termo = st.selectbox("Filtrar por Categoria", ["Todas", "Segurança", "Brasil"])
-
-st.markdown("  
-", unsafe_allow_html=True)
-
-# Filtragem lógica
-noticias_filtradas = [n for n in noticias if busca.lower() in n['titulo'].lower()]
-if filtro_termo != "Todas":
-    noticias_filtradas = [n for n in noticias_filtradas if (filtro_termo in n['termo'])]
-
-# Grid de Notícias (3 colunas)
-if not noticias_filtradas:
-    st.warning("Nenhuma notícia encontrada para os filtros selecionados.")
-else:
-    for i in range(0, len(noticias_filtradas), 3):
+# Exibição em Grid
+if filtradas:
+    for i in range(0, len(filtradas), 3):
         cols = st.columns(3)
         for j in range(3):
-            if i + j < len(noticias_filtradas):
-                n = noticias_filtradas[i + j]
+            if i + j < len(filtradas):
+                n = filtradas[i + j]
                 with cols[j]:
                     st.markdown(f"""
                     <div class="news-card">
                         <div>
                             <span class="news-tag">{n['termo']}</span>
-                            <div class="news-title">{n['titulo'][:80]}...</div>
+                            <div class="news-title">{n['titulo'][:85]}...</div>
                         </div>
-                        <div class="news-footer">
-                            <span>🏢 {n['fonte']}</span>
-                            <span>📅 {n['data'][:16]}</span>
-                        </div>
+                        <div style="font-size: 0.8rem; color: #64748b;">🏢 {n['fonte']}</div>
                     </div>
                     """, unsafe_allow_html=True)
-                    st.link_button("Ver Notícia Completa", n['link'], use_container_width=True)
+                    st.link_button("Ler Notícia", n['link'], use_container_width=True)
+else:
+    st.info("Nenhuma notícia encontrada.")
 
-# Rodapé
 st.markdown("---")
-st.markdown("""
-<div style='text-align: center; color: #94a3b8; font-size: 0.8rem; padding: 1rem;'>
-    Portal Gerado Autonomamente por Agente de IA • 2024  
-
-    Tecnologias: Python, Streamlit, Feedparser
-</div>
-""", unsafe_allow_html=True)
+st.markdown("<div style='text-align: center; color: #94a3b8;'>Portal Gerado por Agente de IA • 2024</div>", unsafe_allow_html=True)
