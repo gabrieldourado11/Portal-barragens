@@ -4,7 +4,7 @@ import feedparser
 # Configuração da página
 st.set_page_config(page_title="CNN Brasil - Monitor de Barragens", page_icon="🔴", layout="wide")
 
-# CSS ESTILO CNN BRASIL
+# CSS ESTILO CNN BRASIL (PARTE 1)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap' );
@@ -22,8 +22,7 @@ st.markdown("""
     .stButton>button:hover { background-color: #cc0000 !important; }
 </style>
 """, unsafe_allow_html=True)
-
-# Agente de Coleta
+# Agente de Coleta e Interface (PARTE 2)
 @st.cache_data(ttl=3600)
 def coletar():
     noticias = []
@@ -33,7 +32,6 @@ def coletar():
             noticias.append({'titulo': e.title, 'link': e.link, 'fonte': e.source.title if hasattr(e, 'source') else 'CNN', 'termo': "SEGURANÇA" if "Segurança" in termo else "BRASIL"})
     return noticias
 
-# Interface
 st.markdown('<div class="cnn-header"><h1>CNN BRASIL</h1></div>', unsafe_allow_html=True)
 st.markdown('<div class="cnn-subheader">Monitor de Segurança de Barragens | Agente de IA</div>', unsafe_allow_html=True)
 
