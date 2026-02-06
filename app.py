@@ -1,7 +1,7 @@
 import streamlit as st
 import feedparser
 from datetime import datetime
-import re
+import random
 
 # 1. Configuração da Página
 st.set_page_config(page_title="Segurança de Barragens - Hub IA", page_icon="🏗️", layout="wide")
@@ -139,15 +139,24 @@ def parse_date(date_str):
 def coletar():
     termos = ["Segurança de Barragens", "Resolução ANM Barragens", "Fiscalização de Barragens"]
     noticias = []
-    # Biblioteca de imagens reais de engenharia e barragens (Unsplash - Links estáveis)
+    # Galeria ampliada de imagens reais de engenharia e barragens
     imgs_eng = [
         "https://images.unsplash.com/photo-1584463651400-90363984306d?auto=format&fit=crop&w=600&q=80",
         "https://images.unsplash.com/photo-1590098573390-340888d2983b?auto=format&fit=crop&w=600&q=80",
         "https://images.unsplash.com/photo-1473163928189-3f4b2c713e1c?auto=format&fit=crop&w=600&q=80",
         "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80",
         "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80",
-        "https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?auto=format&fit=crop&w=600&q=80"
+        "https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1517089596392-db9a5e94281c?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1531834685032-c34bf0d84c77?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1533234432458-690768789371?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1503387762-592dec5832f2?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1516937941344-00b4e0337589?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1535732820275-9ffd998cac22?auto=format&fit=crop&w=600&q=80"
     ]
+    
+    # Embaralhar a lista de imagens para evitar repetições sequenciais
+    random.shuffle(imgs_eng)
     
     for i, termo in enumerate(termos):
         feed = feedparser.parse(f"https://news.google.com/rss/search?q={termo.replace(' ', '+')}&hl=pt-BR&gl=BR&ceid=BR:pt-419")
@@ -155,8 +164,8 @@ def coletar():
             dt = parse_date(e.published) if hasattr(e, 'published') else datetime.now()
             titulo = e.title.lower()
             
-            # Atribuição inteligente de imagem real
-            img_url = imgs_eng[(i + j) % len(imgs_eng)]
+            # Atribuição aleatória da imagem da galeria
+            img_url = imgs_eng[(i * 10 + j) % len(imgs_eng)]
             
             if any(word in titulo for word in ["resolução", "norma", "portaria", "lei"]):
                 cat = "LEGISLAÇÃO"
