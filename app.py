@@ -6,71 +6,79 @@ import re
 # 1. Configuração da Página
 st.set_page_config(page_title="Segurança de Barragens - Hub IA", page_icon="🏗️", layout="wide")
 
-# 2. CSS BASE E ESTRUTURA DE TEMAS POR ABA
-st.markdown("""
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-    * { font-family: 'Inter', sans-serif; }
-
-    .stApp {
-        background: #0f172a;
-        color: white;
+# 2. FUNÇÃO PARA INJETAR O TEMA DA PÁGINA INTEIRA
+def inject_theme(theme_name):
+    themes = {
+        "GERAL": {
+            "bg": "linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%)",
+            "primary": "#3b82f6",
+            "accent": "rgba(59, 130, 246, 0.2)"
+        },
+        "ALERTAS": {
+            "bg": "linear-gradient(135deg, #450a0a 0%, #991b1b 100%)",
+            "primary": "#ef4444",
+            "accent": "rgba(239, 68, 68, 0.2)"
+        },
+        "LEGISLACAO": {
+            "bg": "linear-gradient(135deg, #451a03 0%, #92400e 100%)",
+            "primary": "#f59e0b",
+            "accent": "rgba(245, 158, 11, 0.2)"
+        }
     }
+    t = themes[theme_name]
+    st.markdown(f"""
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        * {{ font-family: 'Inter', sans-serif; }}
+        
+        .stApp {{
+            background: {t['bg']} !important;
+            background-attachment: fixed !important;
+            transition: background 0.6s ease-in-out !important;
+            color: white;
+        }}
+        
+        .main-banner {{
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 2rem;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            border-top: 4px solid {t['primary']};
+        }}
 
-    .main-banner {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 2rem;
-        border-radius: 20px;
-        text-align: center;
-        margin-bottom: 1.5rem;
-    }
+        .news-card {{
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.4s ease;
+            height: 440px;
+        }}
+        
+        .news-card:hover {{
+            transform: translateY(-8px);
+            background: {t['accent']};
+            border-color: {t['primary']};
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }}
 
-    /* Estilos de Card por Categoria */
-    .news-card {
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 15px;
-        overflow: hidden;
-        margin-bottom: 20px;
-        display: flex;
-        flex-direction: column;
-        transition: all 0.4s ease;
-        height: 440px;
-    }
-
-    /* TEMA GERAL (AZUL) */
-    .card-geral { background: rgba(30, 58, 138, 0.2); }
-    .card-geral:hover { border-color: #3b82f6; background: rgba(59, 130, 246, 0.2); transform: translateY(-8px); }
-    .tag-geral { color: #3b82f6; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; }
-
-    /* TEMA ALERTAS (VERMELHO) */
-    .card-alertas { background: rgba(153, 27, 27, 0.2); }
-    .card-alertas:hover { border-color: #ef4444; background: rgba(239, 68, 68, 0.2); transform: translateY(-8px); }
-    .tag-alertas { color: #ef4444; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; }
-
-    /* TEMA LEGISLAÇÃO (DOURADO) */
-    .card-legis { background: rgba(146, 64, 14, 0.2); }
-    .card-legis:hover { border-color: #f59e0b; background: rgba(245, 158, 11, 0.2); transform: translateY(-8px); }
-    .tag-legis { color: #f59e0b; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; }
-
-    .news-image { width: 100%; height: 180px; object-fit: cover; background: #1e293b; }
-    .news-content { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; text-align: center; }
-    .news-title { font-size: 1.1rem; font-weight: 700; color: #ffffff; line-height: 1.3; margin-bottom: 12px; }
-    .news-meta { color: #94a3b8; font-size: 0.8rem; margin-top: auto; padding-bottom: 10px; }
-    .card-link { text-decoration: none; color: inherit; display: block; }
-    
-    /* Estilização das Abas */
-    .stTabs [data-baseweb="tab-list"] { gap: 10px; }
-    .stTabs [data-baseweb="tab"] {
-        background: rgba(255,255,255,0.05);
-        border-radius: 10px 10px 0 0;
-        padding: 10px 20px;
-        color: #94a3b8;
-    }
-</style>
-""", unsafe_allow_html=True)
+        .news-tag {{ color: {t['primary']}; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 8px; }}
+        .stTabs [aria-selected="true"] {{ background-color: {t['primary']} !important; color: white !important; }}
+        
+        .news-image {{ width: 100%; height: 180px; object-fit: cover; background: #1e293b; }}
+        .news-content {{ padding: 15px; flex-grow: 1; display: flex; flex-direction: column; text-align: center; }}
+        .news-title {{ font-size: 1.1rem; font-weight: 700; color: #ffffff; line-height: 1.3; margin-bottom: 12px; }}
+        .news-meta {{ color: #94a3b8; font-size: 0.8rem; margin-top: auto; padding-bottom: 10px; }}
+        .card-link {{ text-decoration: none; color: inherit; display: block; }}
+    </style>
+    """, unsafe_allow_html=True)
 
 def parse_date(date_str):
     try:
@@ -100,16 +108,16 @@ def coletar():
                 if match: img_url = match.group(1)
             
             if any(word in titulo for word in ["resolução", "norma", "portaria", "lei"]):
-                cat, style_class, tag_class = "LEGISLAÇÃO", "card-legis", "tag-legis"
+                cat = "LEGISLAÇÃO"
             elif any(word in titulo for word in ["risco", "alerta", "emergência", "perigo"]):
-                cat, style_class, tag_class = "ALERTAS", "card-alertas", "tag-alertas"
+                cat = "ALERTAS"
             else:
-                cat, style_class, tag_class = "GERAL", "card-geral", "tag-geral"
+                cat = "GERAL"
                 
             noticias.append({
                 't': e.title, 'l': e.link, 'f': e.source.title if hasattr(e, 'source') else 'Portal',
                 'dt_obj': dt, 'dt_s': dt.strftime('%d/%m/%Y'), 'hr_s': dt.strftime('%H:%M'),
-                'cat': cat, 'img': img_url, 'class': style_class, 'tag': tag_class
+                'cat': cat, 'img': img_url
             })
     return sorted(noticias, key=lambda x: x['dt_obj'], reverse=True)
 
@@ -118,7 +126,22 @@ st.markdown('<div class="main-banner"><h1>SEGURANÇA DE BARRAGENS</h1><p style="
 
 noticias = coletar()
 
-tab_geral, tab_alertas, tab_normas = st.tabs(["🌐 Panorama Geral", "🚨 Alertas Urgentes", "📜 Legislação Técnica"])
+# Seleção de Categoria via Radio (para mudar o fundo da página inteira)
+# O Streamlit não permite mudar o CSS da página inteira baseado em abas de forma reativa sem recarregar,
+# por isso usamos um seletor de categoria que funciona como abas mas permite a mudança de tema.
+escolha = st.radio("", ["🌐 Panorama Geral", "🚨 Alertas Urgentes", "📜 Legislação Técnica"], horizontal=True)
+
+if "Geral" in escolha:
+    inject_theme("GERAL")
+    lista_exibir = noticias
+elif "Alertas" in escolha:
+    inject_theme("ALERTAS")
+    lista_exibir = [n for n in noticias if n['cat'] == "ALERTAS"]
+else:
+    inject_theme("LEGISLACAO")
+    lista_exibir = [n for n in noticias if n['cat'] == "LEGISLAÇÃO"]
+
+st.markdown("<br>", unsafe_allow_html=True)
 
 def render_grid(lista):
     if not lista:
@@ -132,10 +155,10 @@ def render_grid(lista):
                 with cols[j]:
                     st.markdown(f"""
                     <a href="{n['l']}" target="_blank" class="card-link">
-                        <div class="news-card {n['class']}">
+                        <div class="news-card">
                             <img src="{n['img']}" class="news-image">
                             <div class="news-content">
-                                <span class="{n['tag']}">{n['cat']}</span>
+                                <span class="news-tag">{n['cat']}</span>
                                 <div class="news-title">{n['t']}</div>
                                 <div class="news-meta">🕒 {n['dt_s']} | {n['hr_s']}</div>
                                 <div style="font-size: 0.7rem; color: #64748b;">Fonte: {n['f']}</div>
@@ -144,15 +167,6 @@ def render_grid(lista):
                     </a>
                     """, unsafe_allow_html=True)
 
-with tab_geral:
-    render_grid(noticias)
-
-with tab_alertas:
-    alertas = [n for n in noticias if n['cat'] == "ALERTAS"]
-    render_grid(alertas)
-
-with tab_normas:
-    normas = [n for n in noticias if n['cat'] == "LEGISLAÇÃO"]
-    render_grid(normas)
+render_grid(lista_exibir)
 
 st.markdown("<br><br><div style='text-align: center; color: #64748b; font-size: 0.7rem; padding-bottom: 40px;'>© 2024 Segurança de Barragens - Monitoramento IA</div>", unsafe_allow_html=True)
