@@ -66,7 +66,6 @@ def inject_theme(theme_name):
             text-transform: uppercase;
         }}
 
-        /* CATEGORIAS ULTRA-CLEAN SEM BOTÕES */
         .stRadio > div {{
             background: transparent !important;
             border: none !important;
@@ -97,7 +96,6 @@ def inject_theme(theme_name):
             border-bottom: 3px solid {t['primary']} !important;
         }}
 
-        /* CARDS QUE SALTÃO DO FUNDO */
         .news-card {{
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(15px);
@@ -135,28 +133,41 @@ def parse_date(date_str):
     except:
         return datetime.now()
 
+# 3. BIBLIOTECA DE IMAGENS SINCRONIZADAS POR CONTEXTO
+IMGS_CONTEXTO = {
+    "BARRAGEM": [
+        "https://images.unsplash.com/photo-1584463651400-90363984306d?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1590098573390-340888d2983b?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1473163928189-3f4b2c713e1c?auto=format&fit=crop&w=600&q=80"
+    ],
+    "ALERTA": [
+        "https://images.unsplash.com/photo-1590105577767-e217ec73b2d3?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=600&q=80"
+    ],
+    "FISCALIZACAO": [
+        "https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80"
+    ],
+    "LEGISLACAO": [
+        "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=600&q=80"
+    ]
+}
+
+def get_img_sincronizada(titulo):
+    t = titulo.lower()
+    if any(w in t for w in ["risco", "alerta", "emergência", "perigo"]):
+        return random.choice(IMGS_CONTEXTO["ALERTA"])
+    if any(w in t for w in ["resolução", "norma", "portaria", "lei", "anm"]):
+        return random.choice(IMGS_CONTEXTO["LEGISLACAO"])
+    if any(w in t for w in ["fiscalização", "vistoria", "técnico", "inspeção"]):
+        return random.choice(IMGS_CONTEXTO["FISCALIZACAO"])
+    return random.choice(IMGS_CONTEXTO["BARRAGEM"])
+
 @st.cache_data(ttl=300)
 def coletar():
     termos = ["Segurança de Barragens", "Resolução ANM Barragens", "Fiscalização de Barragens"]
     noticias = []
-    # Galeria ampliada de imagens reais de engenharia e barragens
-    imgs_eng = [
-        "https://images.unsplash.com/photo-1584463651400-90363984306d?auto=format&fit=crop&w=600&q=80",
-        "https://images.unsplash.com/photo-1590098573390-340888d2983b?auto=format&fit=crop&w=600&q=80",
-        "https://images.unsplash.com/photo-1473163928189-3f4b2c713e1c?auto=format&fit=crop&w=600&q=80",
-        "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80",
-        "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80",
-        "https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?auto=format&fit=crop&w=600&q=80",
-        "https://images.unsplash.com/photo-1517089596392-db9a5e94281c?auto=format&fit=crop&w=600&q=80",
-        "https://images.unsplash.com/photo-1531834685032-c34bf0d84c77?auto=format&fit=crop&w=600&q=80",
-        "https://images.unsplash.com/photo-1533234432458-690768789371?auto=format&fit=crop&w=600&q=80",
-        "https://images.unsplash.com/photo-1503387762-592dec5832f2?auto=format&fit=crop&w=600&q=80",
-        "https://images.unsplash.com/photo-1516937941344-00b4e0337589?auto=format&fit=crop&w=600&q=80",
-        "https://images.unsplash.com/photo-1535732820275-9ffd998cac22?auto=format&fit=crop&w=600&q=80"
-    ]
-    
-    # Embaralhar a lista de imagens para evitar repetições sequenciais
-    random.shuffle(imgs_eng)
     
     for i, termo in enumerate(termos):
         feed = feedparser.parse(f"https://news.google.com/rss/search?q={termo.replace(' ', '+')}&hl=pt-BR&gl=BR&ceid=BR:pt-419")
@@ -164,8 +175,8 @@ def coletar():
             dt = parse_date(e.published) if hasattr(e, 'published') else datetime.now()
             titulo = e.title.lower()
             
-            # Atribuição aleatória da imagem da galeria
-            img_url = imgs_eng[(i * 10 + j) % len(imgs_eng)]
+            # Sincronização de imagem baseada no título
+            img_url = get_img_sincronizada(e.title)
             
             if any(word in titulo for word in ["resolução", "norma", "portaria", "lei"]):
                 cat = "LEGISLAÇÃO"
