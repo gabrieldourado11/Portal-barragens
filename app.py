@@ -124,7 +124,7 @@ def coletar():
             
             # Lógica de Categorização Refinada
             if any(word in titulo for word in ["resolução", "norma", "portaria", "regulamentação", "instrução normativa"]):
-                cat = "📜 NORMAS E REGRAS"
+                cat = "📜 LEGISLAÇÃO"
             elif any(word in titulo for word in ["risco", "alerta", "emergência", "urgente", "perigo"]):
                 cat = "🚨 ALERTAS"
             elif any(word in titulo for word in ["fiscalização", "anm", "vistoria", "lei", "obras"]):
@@ -155,7 +155,7 @@ with col_c2:
 st.markdown("<br>", unsafe_allow_html=True)
 
 # Organização por Abas (Categorias)
-tab_geral, tab_alertas, tab_normas, tab_fiscal = st.tabs(["🌐 Todas", "🚨 Alertas", "📜 Normas e Regras", "🏗️ Fiscalização"])
+tab_geral, tab_alertas, tab_normas, tab_fiscal = st.tabs(["🌐 Todas", "🚨 Alertas", "📜 Legislação", "🏗️ Fiscalização"])
 
 def render_grid(lista_noticias):
     if not lista_noticias:
@@ -191,7 +191,7 @@ with tab_alertas:
     render_grid(alertas)
 
 with tab_normas:
-    normas = [n for n in noticias_filtradas if "NORMAS" in n['cat']]
+    normas = [n for n in noticias_filtradas if "LEGISLAÇÃO" in n['cat']]
     render_grid(normas)
 
 with tab_fiscal:
