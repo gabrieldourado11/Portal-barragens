@@ -5,7 +5,7 @@ from datetime import datetime
 # 1. Configuração da Página
 st.set_page_config(page_title="Segurança de Barragens - Hub IA", page_icon="🏗️", layout="wide")
 
-# 2. CSS RESPONSIVO: WEB & MOBILE
+# 2. CSS RESPONSIVO COM IMAGENS REAIS
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
@@ -17,7 +17,6 @@ st.markdown("""
         color: white;
     }
 
-    /* Banner Responsivo */
     .main-banner {
         background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(15px);
@@ -37,7 +36,6 @@ st.markdown("""
         text-transform: uppercase;
     }
 
-    /* Cards Responsivos */
     .news-card {
         background: rgba(255, 255, 255, 0.03);
         backdrop-filter: blur(10px);
@@ -52,16 +50,14 @@ st.markdown("""
     }
     
     @media (min-width: 768px) {
-        .news-card { height: 420px; }
+        .news-card { height: 450px; }
     }
 
-    .news-header-gradient {
+    .news-image {
         width: 100%;
-        height: 140px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 3rem;
+        height: 180px;
+        object-fit: cover;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     }
 
     .news-content { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; text-align: center; }
@@ -99,8 +95,15 @@ def parse_date(date_str):
 def coletar():
     termos = ["Segurança de Barragens", "Resolução ANM Barragens", "Fiscalização de Barragens"]
     noticias = []
-    gradients = ["linear-gradient(45deg, #1e3a8a, #3b82f6)", "linear-gradient(45deg, #0f172a, #1e40af)", "linear-gradient(45deg, #1e40af, #60a5fa)"]
-    icons = ["🏗️", "🌊", "📜"]
+    # Lista de imagens REAIS de barragens e engenharia (Unsplash)
+    real_images = [
+        "https://images.unsplash.com/photo-1584463651400-90363984306d?w=600&q=80",
+        "https://images.unsplash.com/photo-1590098573390-340888d2983b?w=600&q=80",
+        "https://images.unsplash.com/photo-1473163928189-3f4b2c713e1c?w=600&q=80",
+        "https://images.unsplash.com/photo-1574790332569-48380c10952c?w=600&q=80",
+        "https://images.unsplash.com/photo-1516937941344-00b4e0337589?w=600&q=80",
+        "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&q=80"
+    ]
     
     for i, termo in enumerate(termos):
         feed = feedparser.parse(f"https://news.google.com/rss/search?q={termo.replace(' ', '+')}&hl=pt-BR&gl=BR&ceid=BR:pt-419")
@@ -115,11 +118,11 @@ def coletar():
             else:
                 cat = "🇧🇷 PANORAMA BRASIL"
                 
-            idx = (i + j) % 3
+            img_idx = (i + j) % len(real_images)
             noticias.append({
                 't': e.title, 'l': e.link, 'f': e.source.title if hasattr(e, 'source') else 'Portal',
                 'dt_obj': dt, 'dt_s': dt.strftime('%d/%m/%Y'), 'hr_s': dt.strftime('%H:%M'),
-                'cat': cat, 'grad': gradients[idx], 'icon': icons[idx]
+                'cat': cat, 'img': real_images[img_idx]
             })
     return sorted(noticias, key=lambda x: x['dt_obj'], reverse=True)
 
@@ -151,7 +154,7 @@ def render_grid(lista):
                 with cols[j]:
                     st.markdown(f"""
                     <div class="news-card">
-                        <div class="news-header-gradient" style="background: {n['grad']};">{n['icon']}</div>
+                        <img src="{n['img']}" class="news-image">
                         <div class="news-content">
                             <span class="news-tag">{n['cat']}</span>
                             <div class="news-title">{n['t']}</div>
