@@ -125,6 +125,11 @@ def inject_theme(theme_name):
         .news-meta {{ color: #94a3b8; font-size: 0.85rem; margin-top: auto; }}
         .card-link {{ text-decoration: none; color: inherit; display: block; }}
     </style>
+    <script>
+        setTimeout(function() {
+            window.location.reload();
+        }, 1800000); // 1800000 ms = 30 minutos
+    </script>
     """, unsafe_allow_html=True)
 
 def parse_date(date_str):
@@ -164,7 +169,7 @@ def get_img_sincronizada(titulo):
         return random.choice(IMGS_CONTEXTO["FISCALIZACAO"])
     return random.choice(IMGS_CONTEXTO["BARRAGEM"])
 
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=1800)
 def coletar():
     termos = ["Segurança de Barragens", "Resolução ANM Barragens", "Fiscalização de Barragens"]
     noticias = []
