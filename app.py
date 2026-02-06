@@ -126,9 +126,9 @@ def inject_theme(theme_name):
         .card-link {{ text-decoration: none; color: inherit; display: block; }}
     </style>
     <script>
-        setTimeout(function() {
+        setTimeout(function() {{
             window.location.reload();
-        }, 1800000); // 1800000 ms = 30 minutos
+        }}, 1800000); // 1800000 ms = 30 minutos
     </script>
     """, unsafe_allow_html=True)
 
