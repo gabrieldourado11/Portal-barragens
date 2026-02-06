@@ -8,7 +8,6 @@ st.set_page_config(page_title="Segurança de Barragens - Hub IA", page_icon="�
 
 # 2. FUNÇÃO PARA INJETAR O TEMA E DESIGN MINIMALISTA
 def inject_theme(theme_name):
-    # Normalização para evitar KeyError
     theme_key = "LEGISLACAO" if "LEGIS" in theme_name.upper() else theme_name.upper()
     if "GERAL" in theme_key: theme_key = "GERAL"
     if "ALERTA" in theme_key: theme_key = "ALERTAS"
@@ -67,7 +66,7 @@ def inject_theme(theme_name):
             text-transform: uppercase;
         }}
 
-        /* REMOVER BOTÕES DE RÁDIO E DEIXAR APENAS TEXTO CENTRALIZADO */
+        /* CATEGORIAS ULTRA-CLEAN SEM BOTÕES */
         .stRadio > div {{
             background: transparent !important;
             border: none !important;
@@ -78,7 +77,6 @@ def inject_theme(theme_name):
 
         .stRadio [data-testid="stWidgetLabel"] {{ display: none; }}
 
-        /* Estilo do texto das categorias */
         .stRadio div[role="radiogroup"] label {{
             background: transparent !important;
             border: none !important;
@@ -90,22 +88,16 @@ def inject_theme(theme_name):
             cursor: pointer !important;
         }}
 
-        /* Esconder o círculo do rádio */
-        .stRadio div[role="radiogroup"] [data-testid="stMarkdownContainer"] p {{
-            margin-bottom: 0 !important;
-        }}
-        
         .stRadio div[role="radiogroup"] div[data-testid="stRadioButtonCustomObject"] {{
             display: none !important;
         }}
 
-        /* Traçado embaixo quando selecionado */
         .stRadio div[role="radiogroup"] > div:has(input:checked) label {{
             color: white !important;
             border-bottom: 3px solid {t['primary']} !important;
         }}
 
-        /* Cards com Destaque de Hover (Saltar do fundo) */
+        /* CARDS QUE SALTÃO DO FUNDO */
         .news-card {{
             background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(15px);
@@ -147,10 +139,14 @@ def parse_date(date_str):
 def coletar():
     termos = ["Segurança de Barragens", "Resolução ANM Barragens", "Fiscalização de Barragens"]
     noticias = []
-    backup_imgs = [
-        "https://images.unsplash.com/photo-1584463651400-90363984306d?w=600&q=80",
-        "https://images.unsplash.com/photo-1590098573390-340888d2983b?w=600&q=80",
-        "https://images.unsplash.com/photo-1473163928189-3f4b2c713e1c?w=600&q=80"
+    # Biblioteca de imagens reais de engenharia e barragens (Unsplash - Links estáveis)
+    imgs_eng = [
+        "https://images.unsplash.com/photo-1584463651400-90363984306d?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1590098573390-340888d2983b?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1473163928189-3f4b2c713e1c?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?auto=format&fit=crop&w=600&q=80"
     ]
     
     for i, termo in enumerate(termos):
@@ -159,10 +155,8 @@ def coletar():
             dt = parse_date(e.published) if hasattr(e, 'published') else datetime.now()
             titulo = e.title.lower()
             
-            img_url = backup_imgs[(i + j) % 3]
-            if hasattr(e, 'summary'):
-                match = re.search(r'src="([^"]+)"', e.summary)
-                if match: img_url = match.group(1)
+            # Atribuição inteligente de imagem real
+            img_url = imgs_eng[(i + j) % len(imgs_eng)]
             
             if any(word in titulo for word in ["resolução", "norma", "portaria", "lei"]):
                 cat = "LEGISLAÇÃO"
@@ -183,7 +177,6 @@ st.markdown('<div class="main-banner"><h1>SEGURANÇA DE BARRAGENS</h1><p style="
 
 noticias = coletar()
 
-# Seletor de Categorias Ultra-Clean
 escolha = st.radio("", ["PANORAMA GERAL", "ALERTAS URGENTES", "LEGISLAÇÃO TÉCNICA"], horizontal=True)
 
 if "GERAL" in escolha:
