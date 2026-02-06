@@ -3,7 +3,7 @@ import feedparser
 from datetime import datetime
 
 # 1. Configuração da Página
-st.set_page_config(page_title="Hub de Notícias - Segurança de Barragens", page_icon="🏗️", layout="wide")
+st.set_page_config(page_title="Segurança de Barragens - Hub de Notícias", page_icon="🏗️", layout="wide")
 
 # 2. CSS: DESIGN HUB GLASSMORPHISM
 st.markdown("""
@@ -111,10 +111,10 @@ def parse_date(date_str):
 
 @st.cache_data(ttl=300)
 def coletar():
-    termos = ["Segurança de Barragens", "Barragens no Brasil", "Fiscalização de Barragens"]
+    termos = ["Segurança de Barragens", "Resolução ANM Barragens", "Normas Técnicas Barragens", "Fiscalização de Barragens"]
     noticias = []
-    gradients = ["linear-gradient(45deg, #1e3a8a, #3b82f6)", "linear-gradient(45deg, #0f172a, #1e40af)", "linear-gradient(45deg, #1e40af, #60a5fa)"]
-    icons = ["🏗️", "🌊", "📊"]
+    gradients = ["linear-gradient(45deg, #1e3a8a, #3b82f6)", "linear-gradient(45deg, #0f172a, #1e40af)", "linear-gradient(45deg, #1e40af, #60a5fa)", "linear-gradient(45deg, #312e81, #4338ca)"]
+    icons = ["🏗️", "🌊", "📊", "📜"]
     
     for i, termo in enumerate(termos):
         feed = feedparser.parse(f"https://news.google.com/rss/search?q={termo.replace(' ', '+')}&hl=pt-BR&gl=BR&ceid=BR:pt-419")
@@ -122,15 +122,17 @@ def coletar():
             dt = parse_date(e.published) if hasattr(e, 'published') else datetime.now()
             titulo = e.title.lower()
             
-            # Lógica de Categorização
-            if any(word in titulo for word in ["risco", "alerta", "emergência", "urgente", "perigo"]):
+            # Lógica de Categorização Refinada
+            if any(word in titulo for word in ["resolução", "norma", "portaria", "regulamentação", "instrução normativa"]):
+                cat = "📜 NORMAS E REGRAS"
+            elif any(word in titulo for word in ["risco", "alerta", "emergência", "urgente", "perigo"]):
                 cat = "🚨 ALERTAS"
             elif any(word in titulo for word in ["fiscalização", "anm", "vistoria", "lei", "obras"]):
                 cat = "🏗️ FISCALIZAÇÃO"
             else:
                 cat = "🇧🇷 PANORAMA BRASIL"
                 
-            idx = (i + j) % 3
+            idx = (i + j) % 4
             noticias.append({
                 't': e.title, 'l': e.link, 'f': e.source.title if hasattr(e, 'source') else 'Portal',
                 'dt_obj': dt, 'dt_s': dt.strftime('%d/%m/%Y'), 'hr_s': dt.strftime('%H:%M'),
@@ -139,7 +141,7 @@ def coletar():
     return sorted(noticias, key=lambda x: x['dt_obj'], reverse=True)
 
 # --- INTERFACE ---
-st.markdown('<div class="main-banner"><h1>HUB DE NOTÍCIAS</h1><p style="color:#94a3b8; margin-top:10px;">Segurança de Barragens | Monitoramento Inteligente</p></div>', unsafe_allow_html=True)
+st.markdown('<div class="main-banner"><h1>SEGURANÇA DE BARRAGENS</h1><p style="color:#94a3b8; margin-top:10px;">Hub de Notícias e Atualizações Normativas | Monitoramento IA</p></div>', unsafe_allow_html=True)
 
 noticias = coletar()
 
@@ -153,7 +155,7 @@ with col_c2:
 st.markdown("<br>", unsafe_allow_html=True)
 
 # Organização por Abas (Categorias)
-tab_geral, tab_alertas, tab_fiscal = st.tabs(["🌐 Todas as Notícias", "🚨 Alertas e Riscos", "🏗️ Fiscalização e Obras"])
+tab_geral, tab_alertas, tab_normas, tab_fiscal = st.tabs(["🌐 Todas", "🚨 Alertas", "📜 Normas e Regras", "🏗️ Fiscalização"])
 
 def render_grid(lista_noticias):
     if not lista_noticias:
@@ -188,8 +190,12 @@ with tab_alertas:
     alertas = [n for n in noticias_filtradas if "ALERTAS" in n['cat']]
     render_grid(alertas)
 
+with tab_normas:
+    normas = [n for n in noticias_filtradas if "NORMAS" in n['cat']]
+    render_grid(normas)
+
 with tab_fiscal:
     fiscal = [n for n in noticias_filtradas if "FISCALIZAÇÃO" in n['cat']]
     render_grid(fiscal)
 
-st.markdown("<br><br><div style='text-align: center; color: #64748b; font-size: 0.8rem; padding-bottom: 50px;'>© 2024 Hub de Notícias - Segurança de Barragens</div>", unsafe_allow_html=True)
+st.markdown("<br><br><div style='text-align: center; color: #64748b; font-size: 0.8rem; padding-bottom: 50px;'>© 2024 Segurança de Barragens - Hub de Notícias</div>", unsafe_allow_html=True)
