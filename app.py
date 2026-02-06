@@ -75,8 +75,11 @@ st.markdown("""
         text-align: center !important;
     }
 
-    /* Botão de Atualização Discreto */
-    .update-btn-container { display: flex; justify-content: center; margin-bottom: 20px; }
+    /* Botão de Atualização Discreto e Centralizado */
+    .stButton {
+        display: flex;
+        justify-content: center;
+    }
     .stButton>button {
         background: rgba(255, 255, 255, 0.1) !important;
         color: #94a3b8 !important;
@@ -84,7 +87,9 @@ st.markdown("""
         border-radius: 20px !important;
         font-size: 0.8rem !important;
         width: auto !important;
-        padding: 5px 20px !important;
+        padding: 5px 25px !important;
+        margin: 0 auto !important;
+        display: block !important;
     }
     .stButton>button:hover { background: #3b82f6 !important; color: white !important; border-color: #3b82f6 !important; }
 </style>
@@ -102,11 +107,11 @@ def parse_date(date_str):
 def coletar():
     termos = ["Segurança de Barragens", "Barragens no Brasil"]
     noticias = []
-    # Imagens funcionais via Unsplash
+    # Imagens funcionais via Unsplash com IDs específicos para garantir carregamento
     imgs = [
-        "https://images.unsplash.com/photo-1584463651400-90363984306d?w=500&q=80",
-        "https://images.unsplash.com/photo-1590098573390-340888d2983b?w=500&q=80",
-        "https://images.unsplash.com/photo-1473163928189-3f4b2c713e1c?w=500&q=80"
+        "https://images.unsplash.com/photo-1584463651400-90363984306d?w=800&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1590098573390-340888d2983b?w=800&auto=format&fit=crop",
+        "https://images.unsplash.com/photo-1473163928189-3f4b2c713e1c?w=800&auto=format&fit=crop"
     ]
     for i, termo in enumerate(termos):
         feed = feedparser.parse(f"https://news.google.com/rss/search?q={termo.replace(' ', '+')}&hl=pt-BR&gl=BR&ceid=BR:pt-419")
@@ -125,15 +130,15 @@ st.markdown('<div class="main-banner"><h1>SEGURANÇA DE BARRAGENS</h1><p style="
 
 noticias = coletar()
 
-# Busca e Botão Discreto
+# Busca e Botão Centralizado
 col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
 with col_c2:
     busca = st.text_input("", placeholder="🔍 Digite aqui para pesquisar...")
-    st.markdown('<div class="update-btn-container">', unsafe_allow_html=True)
     if st.button("🔄 Atualizar Portal"):
         st.cache_data.clear()
         st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown("<br>", unsafe_allow_html=True)
 
 # Grid de Notícias
 filtradas = [n for n in noticias if busca.lower() in n['t'].lower()]
