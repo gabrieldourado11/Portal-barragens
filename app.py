@@ -5,7 +5,7 @@ from datetime import datetime
 # 1. Configuração da Página
 st.set_page_config(page_title="Segurança de Barragens - Hub IA", page_icon="🏗️", layout="wide")
 
-# 2. CSS RESPONSIVO COM IMAGENS REAIS
+# 2. CSS: CARDS CLICÁVEIS COM ANIMAÇÃO E GLASSMORPHISM
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
@@ -36,6 +36,13 @@ st.markdown("""
         text-transform: uppercase;
     }
 
+    /* Estilização do Link Invisível que cobre o Card */
+    .card-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
     .news-card {
         background: rgba(255, 255, 255, 0.03);
         backdrop-filter: blur(10px);
@@ -46,41 +53,47 @@ st.markdown("""
         margin-bottom: 20px;
         display: flex;
         flex-direction: column;
-        transition: transform 0.3s ease;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        cursor: pointer;
+        position: relative;
     }
     
+    /* Animação de Hover */
+    .news-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        background: rgba(255, 255, 255, 0.08);
+        border-color: #3b82f6;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+    }
+
     @media (min-width: 768px) {
-        .news-card { height: 450px; }
+        .news-card { height: 380px; }
     }
 
-    .news-image {
+    .news-header-visual {
         width: 100%;
-        height: 180px;
-        object-fit: cover;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        height: 140px;
+        background: linear-gradient(45deg, rgba(30, 58, 138, 0.8), rgba(59, 130, 246, 0.8));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
     }
 
-    .news-content { padding: 15px; flex-grow: 1; display: flex; flex-direction: column; text-align: center; }
-    .news-tag { color: #3b82f6; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 8px; }
-    .news-title { font-size: 1.1rem; font-weight: 700; color: #ffffff; line-height: 1.3; margin-bottom: 12px; }
-    .news-meta { color: #94a3b8; font-size: 0.8rem; margin-top: auto; padding-bottom: 10px; }
+    .news-content { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; text-align: center; }
+    .news-tag { color: #3b82f6; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 10px; }
+    .news-title { font-size: 1.1rem; font-weight: 700; color: #ffffff; line-height: 1.4; margin-bottom: 15px; }
+    .news-meta { color: #94a3b8; font-size: 0.8rem; margin-top: auto; }
 
+    /* Esconder o botão padrão do Streamlit e usar o card como link */
+    .stButton { display: none; }
+    
     .stTextInput input {
         background: rgba(255, 255, 255, 0.05) !important;
         border: 1px solid rgba(255, 255, 255, 0.2) !important;
         color: white !important;
         border-radius: 10px !important;
         text-align: center !important;
-    }
-
-    .stButton>button {
-        background: rgba(255, 255, 255, 0.1) !important;
-        color: #94a3b8 !important;
-        border-radius: 20px !important;
-        width: 100% !important;
-        max-width: 250px;
-        margin: 0 auto;
-        display: block;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -95,15 +108,7 @@ def parse_date(date_str):
 def coletar():
     termos = ["Segurança de Barragens", "Resolução ANM Barragens", "Fiscalização de Barragens"]
     noticias = []
-    # Lista de imagens REAIS de barragens e engenharia (Unsplash)
-    real_images = [
-        "https://images.unsplash.com/photo-1584463651400-90363984306d?w=600&q=80",
-        "https://images.unsplash.com/photo-1590098573390-340888d2983b?w=600&q=80",
-        "https://images.unsplash.com/photo-1473163928189-3f4b2c713e1c?w=600&q=80",
-        "https://images.unsplash.com/photo-1574790332569-48380c10952c?w=600&q=80",
-        "https://images.unsplash.com/photo-1516937941344-00b4e0337589?w=600&q=80",
-        "https://images.unsplash.com/photo-1581094794329-c8112a89af12?w=600&q=80"
-    ]
+    icons = ["🏗️", "🌊", "📜", "📊", "🛡️"]
     
     for i, termo in enumerate(termos):
         feed = feedparser.parse(f"https://news.google.com/rss/search?q={termo.replace(' ', '+')}&hl=pt-BR&gl=BR&ceid=BR:pt-419")
@@ -118,11 +123,10 @@ def coletar():
             else:
                 cat = "🇧🇷 PANORAMA BRASIL"
                 
-            img_idx = (i + j) % len(real_images)
             noticias.append({
                 't': e.title, 'l': e.link, 'f': e.source.title if hasattr(e, 'source') else 'Portal',
                 'dt_obj': dt, 'dt_s': dt.strftime('%d/%m/%Y'), 'hr_s': dt.strftime('%H:%M'),
-                'cat': cat, 'img': real_images[img_idx]
+                'cat': cat, 'icon': icons[(i + j) % len(icons)]
             })
     return sorted(noticias, key=lambda x: x['dt_obj'], reverse=True)
 
@@ -134,7 +138,8 @@ noticias = coletar()
 col_c1, col_c2, col_c3 = st.columns([1, 4, 1])
 with col_c2:
     busca = st.text_input("", placeholder="🔍 Pesquisar no Hub...")
-    if st.button("🔄 Sincronizar Agente"):
+    # Botão de atualização discreto
+    if st.button("🔄 Sincronizar"):
         st.cache_data.clear()
         st.rerun()
 
@@ -152,18 +157,20 @@ def render_grid(lista):
             if i + j < len(lista):
                 n = lista[i + j]
                 with cols[j]:
+                    # Card Clicável usando HTML <a> envolvendo o conteúdo
                     st.markdown(f"""
-                    <div class="news-card">
-                        <img src="{n['img']}" class="news-image">
-                        <div class="news-content">
-                            <span class="news-tag">{n['cat']}</span>
-                            <div class="news-title">{n['t']}</div>
-                            <div class="news-meta">🕒 {n['dt_s']} | {n['hr_s']}</div>
-                            <div style="font-size: 0.7rem; color: #64748b;">Fonte: {n['f']}</div>
+                    <a href="{n['l']}" target="_blank" class="card-link">
+                        <div class="news-card">
+                            <div class="news-header-visual">{n['icon']}</div>
+                            <div class="news-content">
+                                <span class="news-tag">{n['cat']}</span>
+                                <div class="news-title">{n['t']}</div>
+                                <div class="news-meta">🕒 {n['dt_s']} | {n['hr_s']}</div>
+                                <div style="font-size: 0.7rem; color: #64748b;">Fonte: {n['f']}</div>
+                            </div>
                         </div>
-                    </div>
+                    </a>
                     """, unsafe_allow_html=True)
-                    st.link_button("LER NOTÍCIA COMPLETA", n['l'], use_container_width=True)
 
 filtradas = [n for n in noticias if busca.lower() in n['t'].lower()]
 
