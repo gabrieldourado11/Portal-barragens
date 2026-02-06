@@ -6,7 +6,7 @@ import re
 # 1. Configuração da Página
 st.set_page_config(page_title="Segurança de Barragens - Hub IA", page_icon="🏗️", layout="wide")
 
-# 2. FUNÇÃO PARA INJETAR O TEMA DA PÁGINA INTEIRA
+# 2. FUNÇÃO PARA INJETAR O TEMA E ANIMAÇÕES
 def inject_theme(theme_name):
     themes = {
         "GERAL": {
@@ -31,51 +31,73 @@ def inject_theme(theme_name):
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         * {{ font-family: 'Inter', sans-serif; }}
         
+        /* Animação de Entrada da Página */
+        @keyframes fadeIn {{
+            from {{ opacity: 0; transform: translateY(10px); }}
+            to {{ opacity: 1; transform: translateY(0); }}
+        }}
+
         .stApp {{
             background: {t['bg']} !important;
             background-attachment: fixed !important;
-            transition: background 0.6s ease-in-out !important;
+            transition: background 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
             color: white;
         }}
         
         .main-banner {{
             background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
+            backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 2rem;
-            border-radius: 20px;
+            border-radius: 25px;
             text-align: center;
-            margin-bottom: 1.5rem;
-            border-top: 4px solid {t['primary']};
+            margin-bottom: 2rem;
+            border-top: 5px solid {t['primary']};
+            animation: fadeIn 0.8s ease-out;
         }}
 
+        /* Estilização do Seletor de Categorias (Abas Destacadas) */
+        .stRadio > div {{
+            background: rgba(255, 255, 255, 0.07);
+            padding: 10px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            justify-content: center;
+            margin-bottom: 2rem;
+        }}
+
+        .stRadio [data-testid="stWidgetLabel"] {{ display: none; }}
+
+        /* Cards com Animação */
         .news-card {{
             background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
+            backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
+            border-radius: 20px;
             overflow: hidden;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             display: flex;
             flex-direction: column;
-            transition: all 0.4s ease;
-            height: 440px;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            height: 450px;
+            animation: fadeIn 0.6s ease-out;
         }}
         
         .news-card:hover {{
-            transform: translateY(-8px);
+            transform: translateY(-12px) scale(1.02);
             background: {t['accent']};
             border-color: {t['primary']};
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
         }}
 
-        .news-tag {{ color: {t['primary']}; font-weight: 800; font-size: 0.7rem; text-transform: uppercase; margin-bottom: 8px; }}
-        .stTabs [aria-selected="true"] {{ background-color: {t['primary']} !important; color: white !important; }}
-        
-        .news-image {{ width: 100%; height: 180px; object-fit: cover; background: #1e293b; }}
-        .news-content {{ padding: 15px; flex-grow: 1; display: flex; flex-direction: column; text-align: center; }}
-        .news-title {{ font-size: 1.1rem; font-weight: 700; color: #ffffff; line-height: 1.3; margin-bottom: 12px; }}
-        .news-meta {{ color: #94a3b8; font-size: 0.8rem; margin-top: auto; padding-bottom: 10px; }}
+        .news-tag {{ color: {t['primary']}; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 10px; }}
+        .news-image {{ width: 100%; height: 190px; object-fit: cover; background: #1e293b; transition: 0.5s; }}
+        .news-card:hover .news-image {{ transform: scale(1.1); }}
+        .news-content {{ padding: 20px; flex-grow: 1; display: flex; flex-direction: column; text-align: center; }}
+        .news-title {{ font-size: 1.15rem; font-weight: 700; color: #ffffff; line-height: 1.4; margin-bottom: 15px; }}
+        .news-meta {{ color: #94a3b8; font-size: 0.85rem; margin-top: auto; }}
         .card-link {{ text-decoration: none; color: inherit; display: block; }}
     </style>
     """, unsafe_allow_html=True)
@@ -126,9 +148,7 @@ st.markdown('<div class="main-banner"><h1>SEGURANÇA DE BARRAGENS</h1><p style="
 
 noticias = coletar()
 
-# Seleção de Categoria via Radio (para mudar o fundo da página inteira)
-# O Streamlit não permite mudar o CSS da página inteira baseado em abas de forma reativa sem recarregar,
-# por isso usamos um seletor de categoria que funciona como abas mas permite a mudança de tema.
+# Seletor de Categorias Estilizado
 escolha = st.radio("", ["🌐 Panorama Geral", "🚨 Alertas Urgentes", "📜 Legislação Técnica"], horizontal=True)
 
 if "Geral" in escolha:
