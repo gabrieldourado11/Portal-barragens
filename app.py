@@ -124,6 +124,173 @@ def inject_theme(theme_name):
         .news-title {{ font-size: 1.15rem; font-weight: 700; color: #ffffff; line-height: 1.4; margin-bottom: 15px; }}
         .news-meta {{ color: #94a3b8; font-size: 0.85rem; margin-top: auto; }}
         .card-link {{ text-decoration: none; color: inherit; display: block; }}
+
+        /* Estilos para o Banner de Parceiro */
+        .partner-banner {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 15px 20px;
+            margin-bottom: 30px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .partner-banner:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: {t['primary']};
+        }
+        .partner-banner h3 {
+            color: white;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        .partner-banner a {
+            display: inline-block;
+            background: {t['primary']};
+            color: white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: background 0.3s ease;
+        }
+        .partner-banner a:hover {
+            background: #fff;
+            color: {t['primary']};
+        }
+
+        /* Estilos para o Botão de Consultoria Flutuante */
+        .consultoria-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: {t['primary']};
+            color: white;
+            padding: 15px 25px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .consultoria-btn:hover {
+            background: #fff;
+            color: {t['primary']};
+            transform: translateY(-5px);
+        }
+
+        /* Estilos para o Formulário de Newsletter */
+        .newsletter-form {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 50px;
+            margin-bottom: 50px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .newsletter-form h3 {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        .newsletter-form p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+        }
+        .newsletter-form input[type="email"] {
+            width: 70%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            margin-right: 10px;
+            font-size: 1rem;
+        }
+        .newsletter-form input[type="email"]::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .newsletter-form button {
+            background: {t['primary']};
+            color: white;
+            padding: 12px 25px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.3s ease;
+            font-size: 1rem;
+        }
+        .newsletter-form button:hover {
+            background: #fff;
+            color: {t["primary"]};
+        }
+
+        /* Estilos para a Seção de Cursos e Eventos */
+        .courses-events-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 50px;
+            margin-bottom: 50px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .courses-events-section h3 {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        .courses-events-section p {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+        }
+        .courses-events-section .course-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 10px auto;
+            max-width: 400px;
+            text-align: left;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+        .courses-events-section .course-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: {t["primary"]};
+        }
+        .courses-events-section .course-card h4 {
+            color: white;
+            margin-bottom: 5px;
+        }
+        .courses-events-section .course-card span {
+            color: {t["primary"]};
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        .courses-events-section .course-card a {
+            display: block;
+            background: {t["primary"]};
+            color: white;
+            padding: 8px 15px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+            text-align: center;
+        }
+        .courses-events-section .course-card a:hover {
+            background: #fff;
+            color: {t["primary"]};
+        }
+
     </style>
     <script>
         setTimeout(function() {{
@@ -131,6 +298,167 @@ def inject_theme(theme_name):
         }}, 1800000); // 1800000 ms = 30 minutos
     </script>
     """, unsafe_allow_html=True)
+
+def parse_date(date_str):
+    try:
+        return datetime.strptime(date_str[:-4], 
+'%a, %d %b %Y %H:%M:%S
+')
+    except:
+        return datetime.now()
+
+# 3. BIBLIOTECA DE IMAGENS SINCRONIZADAS POR CONTEXTO
+IMGS_CONTEXTO = {
+    "BARRAGEM": [
+        "https://images.unsplash.com/photo-1584463651400-90363984306d?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1590098573390-340888d2983b?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1473163928189-3f4b2c713e1c?auto=format&fit=crop&w=600&q=80"
+    ],
+    "ALERTA": [
+        "https://images.unsplash.com/photo-1590105577767-e217ec73b2d3?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=600&q=80"
+    ],
+    "FISCALIZACAO": [
+        "https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80"
+    ],
+    "LEGISLACAO": [
+        "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=600&q=80",
+        "https://images.unsplash.com/photo-1505664194779-8beaceb93744?auto=format&fit=crop&w=600&q=80"
+    ]
+}
+
+def get_img_sincronizada(titulo):
+    t = titulo.lower()
+    if any(w in t for w in ["risco", "alerta", "emergência", "perigo"]):
+        return random.choice(IMGS_CONTEXTO["ALERTA"])
+    if any(w in t for w in ["resolução", "norma", "portaria", "lei", "anm"]):
+        return random.choice(IMGS_CONTEXTO["LEGISLACAO"])
+    if any(w in t for w in ["fiscalização", "vistoria", "técnico", "inspeção"]):
+        return random.choice(IMGS_CONTEXTO["FISCALIZACAO"])
+    return random.choice(IMGS_CONTEXTO["BARRAGEM"])
+
+@st.cache_data(ttl=1800)
+def coletar():
+    termos = ["Segurança de Barragens", "Resolução ANM Barragens", "Fiscalização de Barragens"]
+    noticias = []
+    
+    for i, termo in enumerate(termos):
+        feed = feedparser.parse(f"https://news.google.com/rss/search?q={termo.replace(\' \', \'+\')}&hl=pt-BR&gl=BR&ceid=BR:pt-419")
+        for j, e in enumerate(feed.entries[:10]):
+            dt = parse_date(e.published) if hasattr(e, \'published\') else datetime.now()
+            titulo = e.title.lower()
+            
+            # Sincronização de imagem baseada no título
+            img_url = get_img_sincronizada(e.title)
+            
+            if any(word in titulo for word in ["resolução", "norma", "portaria", "lei"]):
+                cat = "LEGISLAÇÃO"
+            elif any(word in titulo for word in ["risco", "alerta", "emergência", "perigo"]):
+                cat = "ALERTAS"
+            else:
+                cat = "GERAL"
+                
+            noticias.append({
+                \'t\': e.title, \'l\': e.link, \'f\': e.source.title if hasattr(e, \'source\') else \'Portal\',
+                \'dt_obj\': dt, \'dt_s\': dt.strftime(\'%d/%m/%Y\'), \'hr_s\': dt.strftime(\'%H:%M\'),
+                \'cat\': cat, \'img\': img_url
+            })
+    return sorted(noticias, key=lambda x: x[\'dt_obj\'], reverse=True)
+
+# --- INTERFACE ---
+st.markdown("<div class=\"main-banner\"><h1>SEGURANÇA DE BARRAGENS</h1><p style=\"color:rgba(255,255,255,0.4); font-size:0.8rem; font-weight:600; letter-spacing:2px;\">HUB DE MONITORAMENTO INTELIGENTE</p></div>", unsafe_allow_html=True)
+
+# Banner de Parceiro (Monetização 1)
+st.markdown(f"""
+<div class="partner-banner">
+    <h3>Seja um Parceiro Oficial do Hub de Segurança de Barragens!</h3>
+    <p style="color:rgba(255,255,255,0.7);">Destaque sua empresa para milhares de profissionais do setor.</p>
+    <a href="#" target="_blank">Anuncie Conosco</a>
+</div>
+""", unsafe_allow_html=True)
+
+noticias = coletar()
+
+escolha = st.radio("", ["PANORAMA GERAL", "ALERTAS URGENTES", "LEGISLAÇÃO TÉCNICA"], horizontal=True)
+
+if "GERAL" in escolha:
+    inject_theme("GERAL")
+    lista_exibir = noticias
+elif "ALERTAS" in escolha:
+    inject_theme("ALERTAS")
+    lista_exibir = [n for n in noticias if n['cat'] == "ALERTAS"]
+else:
+    inject_theme("LEGISLAÇÃO")
+    lista_exibir = [n for n in noticias if n['cat'] == "LEGISLAÇÃO"]
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+def render_grid(lista):
+    if not lista:
+        st.info("Nenhuma notícia encontrada nesta categoria.")
+        return
+    for i in range(0, len(lista), 3):
+        cols = st.columns(3)
+        for j in range(3):
+            if i + j < len(lista):
+                n = lista[i + j]
+                with cols[j]:
+                    st.markdown(f"""
+                    <a href="{n['l']}" target="_blank" class="card-link">
+                        <div class="news-card">
+                            <img src="{n['img']}" class="news-image">
+                            <div class="news-content">
+                                <span class="news-tag">{n['cat']}</span>
+                                <div class="news-title">{n['t']}</div>
+                                <div class="news-meta">🕒 {n['dt_s']} | {n['hr_s']}</div>
+                                <div style="font-size: 0.7rem; color: rgba(255,255,255,0.3);">Fonte: {n['f']}</div>
+                            </div>
+                        </div>
+                    </a>
+                    """, unsafe_allow_html=True)
+
+render_grid(lista_exibir)
+
+# Seção de Cursos e Eventos (Monetização 4)
+st.markdown(f"""
+<div class="courses-events-section">
+    <h3>Capacite-se e Mantenha-se Atualizado!</h3>
+    <p>Confira os principais cursos, treinamentos e eventos sobre segurança de barragens.</p>
+    <div class="course-card">
+        <h4>Curso: Gestão de Segurança de Barragens</h4>
+        <span>Online | 40h | Certificado</span>
+        <a href="#" target="_blank">Saiba Mais</a>
+    </div>
+    <div class="course-card">
+        <h4>Webinar: Novas Regulamentações da ANM</h4>
+        <span>Ao Vivo | Gratuito | Inscrições Abertas</span>
+        <a href="#" target="_blank">Inscreva-se</a>
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# Formulário de Newsletter (Monetização 3)
+st.markdown(f"""
+<div class="newsletter-form">
+    <h3>Receba Alertas e Análises Exclusivas!</h3>
+    <p>Assine nossa newsletter e mantenha-se à frente com informações estratégicas sobre segurança de barragens.</p>
+    <form action="#" method="post">
+        <input type="email" placeholder="Seu melhor e-mail" required>
+        <button type="submit">Assinar Agora</button>
+    </form>
+</div>
+""", unsafe_allow_html=True)
+
+# Botão de Consultoria Flutuante (Monetização 2)
+st.markdown(f"""
+<a href="#" target="_blank" class="consultoria-btn">
+    Solicitar Consultoria Técnica
+</a>
+""", unsafe_allow_html=True)
+
+st.markdown("<br><br><div style=\'text-align: center; color: rgba(255,255,255,0.2); font-size: 0.7rem; padding-bottom: 40px; font-weight:600; letter-spacing:1px;\'>© 2024 SEGURANÇA DE BARRAGENS - AGENTE DE IA</div>", unsafe_allow_html=True)
+
 
 def parse_date(date_str):
     try:
