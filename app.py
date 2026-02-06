@@ -1,169 +1,117 @@
 import streamlit as st
 import feedparser
 from datetime import datetime
+import time
 
 # Configuração da página
-st.set_page_config(
-    page_title="Monitor IA - Segurança de Barragens",
-    page_icon="🏗️",
-    layout="wide"
-)
+st.set_page_config(page_title="CNN Brasil - Monitor de Barragens", page_icon="🔴", layout="wide")
 
-# CSS AVANÇADO: GLASSMORPHISM & CENTRALIZAÇÃO
+# CSS ESTILO CNN BRASIL AVANÇADO
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&display=swap');
+    * { font-family: 'Roboto', sans-serif; }
+    .stApp { background-color: #ffffff; color: #222222; }
     
-    * { font-family: 'Inter', sans-serif; }
-
-    /* Fundo com Gradiente Azul Escuro */
-    .stApp {
-        background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
-        background-attachment: fixed;
-        color: white;
-    }
-
-    /* Banner Principal Glassmorphism */
-    .main-banner {
-        background: rgba(255, 255, 255, 0.05);
-        backdrop-filter: blur(15px);
-        -webkit-backdrop-filter: blur(15px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 3.5rem;
-        border-radius: 25px;
-        text-align: center;
-        margin-bottom: 3rem;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-    }
-
-    .main-banner h1 {
-        font-weight: 900;
-        font-size: 3.5rem;
-        letter-spacing: -1px;
-        color: #f8fafc !important;
-        margin-bottom: 10px;
-    }
-
-    .main-banner p {
-        font-size: 1.2rem;
-        color: #94a3b8;
-    }
-
-    /* Cards de Notícias Centralizados */
+    /* Header CNN */
+    .cnn-header { background-color: #cc0000; padding: 1.5rem; text-align: center; color: white; border-bottom: 5px solid #990000; }
+    .cnn-header h1 { font-weight: 900; font-size: 2.8rem; margin: 0; color: white !important; }
+    .cnn-subheader { background-color: #222222; color: #ffffff; padding: 0.5rem; text-align: center; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; font-size: 0.9rem; margin-bottom: 2rem; }
+    
+    /* Barra de Pesquisa */
+    .stTextInput input { border: 2px solid #eeeeee !important; border-radius: 0px !important; text-align: center !important; height: 50px !important; }
+    
+    /* Card de Notícia Estilo CNN */
     .news-card {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 2rem;
-        border-radius: 20px;
-        height: 320px;
+        background: #ffffff;
+        margin-bottom: 30px;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        transition: transform 0.3s;
+        height: 100%;
         display: flex;
         flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        margin-bottom: 20px;
     }
-
-    .news-card:hover {
-        transform: scale(1.05);
-        background: rgba(255, 255, 255, 0.08);
-        border-color: #3b82f6;
-        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+    .news-card:hover { transform: translateY(-5px); }
+    
+    .news-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        background-color: #f0f0f0;
     }
-
-    .news-tag {
-        background: #3b82f6;
-        color: white;
-        font-size: 0.75rem;
-        font-weight: 800;
-        padding: 5px 15px;
-        border-radius: 50px;
-        text-transform: uppercase;
-        margin-bottom: 15px;
-    }
-
-    .news-title {
-        font-size: 1.3rem;
-        font-weight: 700;
-        color: #ffffff;
-        line-height: 1.3;
-        margin-bottom: 15px;
-        display: -webkit-box;
-        -webkit-line-clamp: 3;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-    }
-
-    .news-source {
-        font-size: 0.9rem;
-        color: #3b82f6;
-        font-weight: 600;
-        margin-bottom: 5px;
-    }
-
-    /* Customização da Barra de Pesquisa */
-    .stTextInput input {
-        background: rgba(255, 255, 255, 0.05) !important;
-        border: 1px solid rgba(255, 255, 255, 0.2) !important;
-        color: white !important;
-        border-radius: 15px !important;
-        padding: 15px 20px !important;
-        font-size: 1.1rem !important;
-        text-align: center !important;
-    }
-
-    /* Botões Estilizados */
-    .stButton>button {
-        border-radius: 15px !important;
-        background: #3b82f6 !important;
-        color: white !important;
-        border: none !important;
-        padding: 10px 25px !important;
-        font-weight: 700 !important;
-        transition: 0.3s !important;
-    }
-
-    .stButton>button:hover {
-        background: #2563eb !important;
-        box-shadow: 0 0 20px rgba(59, 130, 246, 0.5) !important;
-    }
+    
+    .news-content { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; text-align: left; }
+    
+    .news-category { color: #cc0000; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; margin-bottom: 10px; }
+    
+    .news-title { font-size: 1.25rem; font-weight: 900; color: #222222; line-height: 1.2; margin-bottom: 15px; min-height: 60px; }
+    
+    .news-meta { display: flex; align-items: center; color: #666666; font-size: 0.85rem; margin-top: auto; }
+    .news-meta i { margin-right: 5px; }
+    
+    /* Botão */
+    .stButton>button { border-radius: 0px !important; background-color: #222222 !important; color: white !important; font-weight: 700 !important; text-transform: uppercase; width: 100%; height: 45px; border: none; }
+    .stButton>button:hover { background-color: #cc0000 !important; color: white !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# Agente de Coleta
-@st.cache_data(ttl=3600)
-def coletar():
-    noticias = []
+# Função para converter data do RSS para objeto datetime
+def parse_date(date_str):
+    try:
+        # Formato comum em RSS: "Fri, 06 Feb 2026 14:12:00 GMT"
+        return datetime.strptime(date_str[:-4], '%a, %d %b %Y %H:%M:%S')
+    except:
+        return datetime.now()
+
+# Agente de Coleta com Ordenação
+@st.cache_data(ttl=300) # Atualiza a cada 5 minutos para ser "tempo real"
+def coletar_noticias():
     termos = ["Segurança de Barragens", "Barragens no Brasil"]
-    for termo in termos:
+    todas_noticias = []
+    
+    # Imagens padrão para o tema (caso o RSS não forneça)
+    imagens_tema = [
+        "https://images.unsplash.com/photo-1584463651400-90363984306d?auto=format&fit=crop&q=80&w=800",
+        "https://images.unsplash.com/photo-1590098573390-340888d2983b?auto=format&fit=crop&q=80&w=800",
+        "https://images.unsplash.com/photo-1473163928189-3f4b2c713e1c?auto=format&fit=crop&q=80&w=800"
+    ]
+    
+    for i, termo in enumerate(termos):
         feed = feedparser.parse(f"https://news.google.com/rss/search?q={termo.replace(' ', '+')}&hl=pt-BR&gl=BR&ceid=BR:pt-419")
-        for e in feed.entries[:12]:
-            noticias.append({
+        for j, e in enumerate(feed.entries[:10]):
+            dt = parse_date(e.published) if hasattr(e, 'published') else datetime.now()
+            todas_noticias.append({
                 'titulo': e.title,
                 'link': e.link,
-                'fonte': e.source.title if hasattr(e, 'source') else 'Portal de Notícias',
-                'termo': "Segurança" if "Segurança" in termo else "Brasil"
+                'fonte': e.source.title if hasattr(e, 'source') else 'CNN Brasil',
+                'data_obj': dt,
+                'data_str': dt.strftime('%d/%m/%Y'),
+                'hora_str': dt.strftime('%H:%M'),
+                'categoria': "SEGURANÇA" if "Segurança" in termo else "BRASIL",
+                'imagem': imagens_tema[(i + j) % len(imagens_tema)]
             })
-    return noticias
+    
+    # Ordenar por data (mais recentes primeiro)
+    return sorted(todas_noticias, key=lambda x: x['data_obj'], reverse=True)
 
 # --- INTERFACE ---
 
-st.markdown('<div class="main-banner"><h1>🏗️ MONITOR DE BARRAGENS</h1><p>Agente de Inteligência Artificial • Monitoramento em Tempo Real</p></div>', unsafe_allow_html=True)
+st.markdown('<div class="cnn-header"><h1>CNN BRASIL</h1></div>', unsafe_allow_html=True)
+st.markdown('<div class="cnn-subheader">Monitor de Segurança de Barragens | Alertas em Tempo Real</div>', unsafe_allow_html=True)
 
-noticias = coletar()
+noticias = coletar_noticias()
 
-# Barra de Pesquisa Centralizada
+# Barra de Pesquisa
 col_c1, col_c2, col_c3 = st.columns([1, 2, 1])
 with col_c2:
-    busca = st.text_input("", placeholder="🔍 Digite aqui para pesquisar no portal...")
-    if st.button("🔄 ATUALIZAR AGENTE AGORA", use_container_width=True):
+    busca = st.text_input("", placeholder="🔍 PESQUISAR NOTÍCIAS E ALERTAS...")
+    if st.button("🔄 ATUALIZAR PORTAL AGORA"):
         st.cache_data.clear()
         st.rerun()
 
-st.markdown("<br><br>", unsafe_allow_html=True)
+st.markdown("<br>", unsafe_allow_html=True)
 
 # Filtragem
 filtradas = [n for n in noticias if busca.lower() in n['titulo'].lower()]
@@ -178,14 +126,20 @@ if filtradas:
                 with cols[j]:
                     st.markdown(f"""
                     <div class="news-card">
-                        <span class="news-tag">{n['termo']}</span>
-                        <div class="news-source">🏢 {n['fonte']}</div>
-                        <div class="news-title">{n['titulo']}</div>
+                        <img src="{n['imagem']}" class="news-image">
+                        <div class="news-content">
+                            <span class="news-category">{n['categoria']}</span>
+                            <div class="news-title">{n['titulo']}</div>
+                            <div class="news-meta">
+                                🕒 {n['data_str']} | {n['hora_str']}
+                            </div>
+                            <div style="font-size: 0.8rem; color: #999; margin-top: 5px;">Fonte: {n['fonte']}</div>
+                        </div>
                     </div>
                     """, unsafe_allow_html=True)
-                    st.link_button("🔗 ABRIR PREVISUALIZAÇÃO", n['link'], use_container_width=True)
+                    st.link_button("LEIA MAIS", n['link'], use_container_width=True)
 else:
-    st.markdown("<h3 style='text-align: center;'>Nenhuma notícia encontrada para sua busca.</h3>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center;'>Nenhum alerta encontrado para sua busca.</h3>", unsafe_allow_html=True)
 
-st.markdown("<br><br><hr style='opacity: 0.1;'>", unsafe_allow_html=True)
-st.markdown("<div style='text-align: center; color: #64748b; padding-bottom: 50px;'>Desenvolvido por Agente de IA Autônomo • 2024</div>", unsafe_allow_html=True)
+st.markdown("<br><br><hr>", unsafe_allow_html=True)
+st.markdown(f"<div style='text-align: center; color: #666666; font-size: 0.8rem; padding-bottom: 50px;'>© {datetime.now().year} CNN Brasil - Monitoramento Autônomo via Agente de IA</div>", unsafe_allow_html=True)
