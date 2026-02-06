@@ -5,7 +5,7 @@ from datetime import datetime
 # Configuração da página
 st.set_page_config(page_title="Segurança de Barragens - Monitor IA", page_icon="🏗️", layout="wide")
 
-# CSS: DESIGN AZUL ESCURO COM BLUR (GLASSMORPHISM)
+# CSS: DESIGN AZUL ESCURO COM BLUR E GRADIENTES (SEM IMAGENS EXTERNAS)
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
@@ -51,7 +51,16 @@ st.markdown("""
     }
     .news-card:hover { transform: translateY(-5px); border-color: #3b82f6; }
 
-    .news-image { width: 100%; height: 200px; object-fit: cover; background: #1e293b; }
+    /* Topo do Card com Gradiente em vez de Imagem */
+    .news-header-gradient {
+        width: 100%;
+        height: 180px;
+        background: linear-gradient(45deg, #1e3a8a, #3b82f6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 4rem;
+    }
 
     .news-content { padding: 20px; flex-grow: 1; display: flex; flex-direction: column; text-align: center; }
 
@@ -93,21 +102,25 @@ def parse_date(date_str):
 def coletar():
     termos = ["Segurança de Barragens", "Barragens no Brasil"]
     noticias = []
-    # Usando imagens do Unsplash Source que são mais estáveis para hotlinking
-    imgs = [
-        "https://images.unsplash.com/photo-1574790332569-48380c10952c?w=500&q=80",
-        "https://images.unsplash.com/photo-1585914966076-9600193696ad?w=500&q=80",
-        "https://images.unsplash.com/photo-1473163928189-3f4b2c713e1c?w=500&q=80"
+    # Gradientes e Ícones para os cards
+    gradients = [
+        "linear-gradient(45deg, #1e3a8a, #3b82f6)",
+        "linear-gradient(45deg, #0f172a, #1e40af)",
+        "linear-gradient(45deg, #1e40af, #60a5fa)"
     ]
+    icons = ["🏗️", "🌊", "📊"]
+    
     for i, termo in enumerate(termos):
         feed = feedparser.parse(f"https://news.google.com/rss/search?q={termo.replace(' ', '+')}&hl=pt-BR&gl=BR&ceid=BR:pt-419")
         for j, e in enumerate(feed.entries[:12]):
             dt = parse_date(e.published) if hasattr(e, 'published') else datetime.now()
+            idx = (i + j) % 3
             noticias.append({
                 't': e.title, 'l': e.link, 'f': e.source.title if hasattr(e, 'source') else 'Portal',
                 'dt_obj': dt, 'dt_s': dt.strftime('%d/%m/%Y'), 'hr_s': dt.strftime('%H:%M'),
                 'cat': "SEGURANÇA" if "Segurança" in termo else "BRASIL",
-                'img': imgs[(i + j) % len(imgs)]
+                'grad': gradients[idx],
+                'icon': icons[idx]
             })
     return sorted(noticias, key=lambda x: x['dt_obj'], reverse=True)
 
@@ -134,7 +147,9 @@ if filtradas:
                 with cols[j]:
                     st.markdown(f"""
                     <div class="news-card">
-                        <img src="{n['img']}" class="news-image">
+                        <div class="news-header-gradient" style="background: {n['grad']};">
+                            {n['icon']}
+                        </div>
                         <div class="news-content">
                             <span class="news-tag">{n['cat']}</span>
                             <div class="news-title">{n['t']}</div>
