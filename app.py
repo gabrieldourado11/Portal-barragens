@@ -371,7 +371,7 @@ def coletar():
     return sorted(unique_noticias, key=lambda x: x['dt_obj'], reverse=True)
 
 # --- INTERFACE ---
-st.markdown('<div class="main-banner"><h1>SEGURANÇA DE BARRAGENS</h1><p style="color:rgba(255,255,255,0.4); font-size:0.8rem; font-weight:600; letter-spacing:2px;">HUB DE MONITORAMENTO INTELIGENTE</p></div>', unsafe_allow_html=True)
+st.markdown('<div class="main-banner"><h1>LUISA DOURADO</h1><p style="color:rgba(255,255,255,0.4); font-size:0.8rem; font-weight:600; letter-spacing:2px;">HUB DE MONITORAMENTO INTELIGENTE</p></div>', unsafe_allow_html=True)
 
 # Banner de Parceiro
 st.markdown(f"""
